@@ -1,4 +1,4 @@
-from backend.src.models.user import User
+from ..models.user import User
 from sqlalchemy.future import select
 from ..schemas.auth import TokenData
 from ..database.db import get_db

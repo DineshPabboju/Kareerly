@@ -28,5 +28,5 @@ class Job_Application(Base):
     notes: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))    
 
-    user: Mapped["User"] = relationship("User",back_populates="job_applications")
+    user: Mapped["User"] = relationship("User",back_populates="applications")
     

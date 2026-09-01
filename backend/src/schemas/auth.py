@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from unittest.mock import Base
+
+from pydantic import BaseModel, EmailStr
 
 class Token(BaseModel):
     access_token: str
@@ -12,5 +14,8 @@ class UserLogin(BaseModel):
     email: str
     password: str
     
-class UserRegister(UserLogin):
+class UserRegister(BaseModel):
+    username: str
+    email:EmailStr
+    password: str
     pass
