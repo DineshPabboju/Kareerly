@@ -2,7 +2,7 @@ from typing import List, TYPE_CHECKING
 import uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, DateTime, ForeignKey, text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import UUID
 # from backend.src.models.user import User
 # from ..models.user import User
 from ..database.base import Base
@@ -23,7 +23,7 @@ class Job_Application(Base):
     job_url: Mapped[str] = mapped_column(String(255), nullable=True)
     location: Mapped[str] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(255), nullable=False)
-    applied_date: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
+    applied_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True, server_default=text("CURRENT_TIMESTAMP"))
     follow_up_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True) 
     notes: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))    

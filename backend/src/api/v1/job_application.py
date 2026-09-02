@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from ...auth import oauth2
+from ... import models
 from ...database import get_db
 from ...models import Job_Application
 from typing import List
@@ -19,11 +21,12 @@ async def get_applications(db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("", response_model=JobApplication)
-async def create_application(application: JobApplicationCreate, db: AsyncSession = Depends(get_db)):
+async def create_application(application: JobApplicationCreate, db: AsyncSession = Depends(get_db), current_user = Depends(oauth2.get_current_user)):
+    job_application = models.Job_Application(**application.model_dump(), user_id=current_user.id)
     try:
-        db.add(application)
+        db.add(job_application)
         await db.commit()
-        await db.refresh(application)
-        return application
+        await db.refresh(job_application)
+        return job_application
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

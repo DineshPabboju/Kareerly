@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 # from ..models import Job_Application
 from ..database.base import Base
 import uuid
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import UUID
 
 
 
