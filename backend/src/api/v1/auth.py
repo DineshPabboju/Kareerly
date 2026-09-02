@@ -13,6 +13,7 @@ from ... import models
 from ...auth import security
 from ...schemas import user, auth
 from datetime import datetime, timezone
+from ...auth import security, oauth2
 
 router = APIRouter(
     prefix="/auth", 
@@ -25,9 +26,10 @@ async def login(credentials: OAuth2PasswordRequestForm = Depends(), db: AsyncSes
     password = credentials.password
     result = await db.execute(select(models.User).where(models.User.email == email))
     user = result.scalar_one_or_none()
-    if not user or not user.verify_password(password, user.hashed_password):
+    if not user or not security.verify_password(password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    access_token = security.create_access_token(data={"sub": user.email})
+    
+    access_token = oauth2.create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/signup", response_model=user.User)

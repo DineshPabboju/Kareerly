@@ -1,4 +1,5 @@
 from unittest.mock import Base
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
 
@@ -7,7 +8,7 @@ class Token(BaseModel):
     token_type: str
     
 class TokenData(BaseModel):
-    user_id: int | None = None
+    user_id: UUID | None = None
     
     
 class UserLogin(BaseModel):
