@@ -17,3 +17,6 @@ class JobApplication(JobApplicationBase):
     
     class Config:
         from_attributes = True
+        
+class JobApplicationUpdate(JobApplicationBase):
+    pass
