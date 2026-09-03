@@ -19,4 +19,5 @@ class JobApplication(JobApplicationBase):
         from_attributes = True
         
 class JobApplicationUpdate(JobApplicationBase):
+
     pass

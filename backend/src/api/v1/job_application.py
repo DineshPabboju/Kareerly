@@ -51,7 +51,7 @@ async def delete_application(id: UUID, db: AsyncSession = Depends(get_db), curre
     await db.commit()
     return {"Message":"Application Deleted Successfully"}
 
-@router.put("/{id}")
+@router.put("/{id}", response_model=JobApplication)
 async def update_application(id:UUID, updated_application: JobApplicationUpdate, db: AsyncSession = Depends(get_db), current_user = Depends(oauth2.get_current_user)):
     query = await db.execute(select(models.Job_Application).
                              where(and_
