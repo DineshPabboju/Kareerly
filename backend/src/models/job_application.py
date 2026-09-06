@@ -1,16 +1,17 @@
 from typing import List, TYPE_CHECKING
 import uuid
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, DateTime, ForeignKey, text
 from sqlalchemy import UUID
 # from backend.src.models.user import User
 # from ..models.user import User
 from ..database.base import Base
-
+from enum import Enum
+from ..enums import ApplicationStatus
 
 if TYPE_CHECKING:
     from .user import User
-
 
 
 
@@ -22,7 +23,7 @@ class Job_Application(Base):
     role: Mapped[str] = mapped_column(String(255), nullable=False)
     job_url: Mapped[str] = mapped_column(String(255), nullable=True)
     location: Mapped[str] = mapped_column(String(255), nullable=True)
-    status: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[ApplicationStatus] = mapped_column(SQLEnum(ApplicationStatus), nullable=False)
     applied_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True, server_default=text("CURRENT_TIMESTAMP"))
     follow_up_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True) 
     notes: Mapped[str] = mapped_column(String(255), nullable=True)
