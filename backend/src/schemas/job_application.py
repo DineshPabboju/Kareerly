@@ -1,12 +1,12 @@
 from uuid import UUID
-
+from ..enums import ApplicationStatus
 from pydantic import BaseModel
 
 
 class JobApplicationBase(BaseModel):
     company: str
     role: str
-    status: str
+    status: ApplicationStatus
 
 
 class JobApplicationCreate(JobApplicationBase):
