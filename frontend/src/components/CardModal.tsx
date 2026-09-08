@@ -1,5 +1,3 @@
-import React from 'react'
-
 const CardModal = () => {
   return (
     <div>CardModal</div>
