@@ -2,14 +2,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    SECRET_KEY: str = "04f7986e125482310f38119c8e5eb7cc3dfe5ce163275c69d8958db144d21d5f"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    FRONTEND_URL: str = "http://localhost:5173"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./app.db"
     
-    SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
-    FRONTEND_URL:str
-    DATABASE_URL:str
-    
-    model_config = SettingsConfigDict(env_file=".env",env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
     
     
 settings = Settings()

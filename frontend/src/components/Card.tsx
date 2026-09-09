@@ -85,23 +85,31 @@ export const Card: React.FC<CardProps> = ({ application }) => {
                     openEditModal(application)
                   }}
                 >
-                  Edit details
+                  <span className="menu-item-icon">✎</span>
+                  <span className="menu-item-label">Edit details</span>
                 </button>
                 <div className="menu-divider" />
-                <div className="menu-label">Move to</div>
-                {statuses.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={`menu-item ${application.status === s.id ? 'active' : ''}`}
-                    onClick={() => {
-                      setMenuOpen(false)
-                      moveApplicationStatus(application.id, s.id)
-                    }}
-                  >
-                    {s.label}
-                  </button>
-                ))}
+                <div className="menu-label">Move to stage</div>
+                {statuses.map((s) => {
+                  const isCurrent = application.status === s.id
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className={`menu-item stage-item ${isCurrent ? 'active' : ''}`}
+                      onClick={() => {
+                        setMenuOpen(false)
+                        if (!isCurrent) {
+                          moveApplicationStatus(application.id, s.id)
+                        }
+                      }}
+                    >
+                      <span className={`status-dot ${s.id}`} />
+                      <span className="menu-item-label">{s.label}</span>
+                      {isCurrent && <span className="menu-item-check">✓</span>}
+                    </button>
+                  )
+                })}
                 <div className="menu-divider" />
                 <button
                   type="button"
@@ -113,7 +121,8 @@ export const Card: React.FC<CardProps> = ({ application }) => {
                     }
                   }}
                 >
-                  Delete
+                  <span className="menu-item-icon">✕</span>
+                  <span className="menu-item-label">Delete</span>
                 </button>
               </div>
             )}

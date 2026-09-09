@@ -23,7 +23,10 @@ class Job_Application(Base):
     role: Mapped[str] = mapped_column(String(255), nullable=False)
     job_url: Mapped[str] = mapped_column(String(255), nullable=True)
     location: Mapped[str] = mapped_column(String(255), nullable=True)
-    status: Mapped[ApplicationStatus] = mapped_column(SQLEnum(ApplicationStatus), nullable=False)
+    status: Mapped[ApplicationStatus] = mapped_column(
+        SQLEnum(ApplicationStatus, native_enum=False, length=50, values_callable=lambda x: [e.value for e in x]),
+        nullable=False
+    )
     applied_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True, server_default=text("CURRENT_TIMESTAMP"))
     follow_up_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True) 
     notes: Mapped[str] = mapped_column(String(255), nullable=True)
