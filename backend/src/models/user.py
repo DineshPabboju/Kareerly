@@ -1,17 +1,12 @@
 from typing import List, TYPE_CHECKING
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Integer, String, DateTime, ForeignKey, text
-from sqlalchemy.orm import relationship
-# from backend.src.models.job_application import Job_Application
-# from ..models import Job_Application
-from ..database.base import Base
 import uuid
-from sqlalchemy import UUID
-
-
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, DateTime, text, UUID
+from ..database.base import Base
 
 if TYPE_CHECKING:
     from .job_application import Job_Application
+
 
 class User(Base):
     __tablename__ = "users"

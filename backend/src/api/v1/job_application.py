@@ -42,7 +42,7 @@ async def get_applications(
             )
 
         if status_filter:
-            query = query.where(models.Job_Application.status == status_filter)
+            query = query.where(models.Job_Application.status == status_filter.strip().lower())
 
         query = query.order_by(desc(models.Job_Application.created_at))
         result = await db.execute(query)

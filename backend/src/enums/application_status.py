@@ -20,7 +20,7 @@ class ApplicationStatus(str, Enum):
         """Map legacy and specific statuses to the 4 board columns."""
         if not status:
             return cls.APPLIED.value
-        s = str(status).lower()
+        s = str(status).lower().strip()
         if s in (cls.WISHLIST.value, "wishlist"):
             return cls.WISHLIST.value
         if s in (cls.APPLIED.value, cls.PENDING.value, "applied", "pending"):
@@ -30,3 +30,17 @@ class ApplicationStatus(str, Enum):
         if s in (cls.CLOSED.value, cls.REJECTED.value, cls.SELECTED.value, cls.OFFER.value, "closed", "rejected", "selected", "offer"):
             return cls.CLOSED.value
         return cls.APPLIED.value
+
+    @classmethod
+    def _missing_(cls, value):
+        """Case-insensitive and fuzzy lookup for enum members."""
+        if isinstance(value, str):
+            val_clean = value.strip().lower()
+            for member in cls:
+                if member.value == val_clean or member.name.lower() == val_clean:
+                    return member
+            normalized = cls.normalize_for_board(val_clean)
+            for member in cls:
+                if member.value == normalized:
+                    return member
+        return None
