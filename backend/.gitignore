@@ -72,6 +72,7 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 *.db
+app.db
 
 # =========================
 # Jupyter
