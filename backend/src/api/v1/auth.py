@@ -34,24 +34,33 @@ async def login(credentials: OAuth2PasswordRequestForm = Depends(), db: AsyncSes
 
 @router.post("/signup", response_model=user.User)
 async def register(credentials: auth.UserRegister, db: AsyncSession = Depends(get_db)):
-    email = credentials.email
+    email = credentials.email.strip().lower()
+    username = credentials.username.strip()
     password = credentials.password
+
     result = await db.execute(select(models.User).where(models.User.email == email))
     existing_user = result.scalar_one_or_none()
     if existing_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"User Already Exists")
-    user_data = credentials.model_dump(exclude={password})
-    user_data["hashed_password"] = security.hash_password(password)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists with this email")
+
+    result_username = await db.execute(select(models.User).where(models.User.username == username))
+    if result_username.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username is already taken")
+
     new_user = models.User(
-        username=credentials.username,
-        email=credentials.email,
+        username=username,
+        email=email,
         hashed_password=security.hash_password(password),
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.now(timezone.utc).replace(tzinfo=None)
     )
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
-    return new_user
+    try:
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+        return new_user
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/me", response_model=user.User)

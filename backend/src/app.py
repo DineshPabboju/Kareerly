@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 from .database import async_engine
 from .database.base import Base
 from . import models  # noqa: F401 - Register models with metadata
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from .api.v1 import job_application_router, auth_router, user_router
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,6 +23,14 @@ app = FastAPI(
     title="Kareerly-Job Kanban Board",
     description="API for managing job applications in a Kanban board format."
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)}
+    )
 
 @app.get("/")
 def message():
