@@ -1,0 +1,47 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        manrope: ['"Manrope"', 'sans-serif'],
+        mono: ['"DM Mono"', 'monospace'],
+      },
+      colors: {
+        primary: '#1d2420',
+        'bg-light': '#f5f6f2',
+        'border-light': '#dfe3dc',
+        accent: '#f2643b',
+        'text-muted': '#8a918b',
+        'text-gray': '#818983',
+        'text-gray-light': '#7b847d',
+        'icon-gray': '#778078',
+        'avatar-bg': '#d8e3d4',
+        'avatar-text': '#4c6350',
+        'eyebrow-text': '#9aa19b',
+        'accent-light': '#f69779',
+        'dot-green': '#74a17c',
+        'dot-gray': '#bbbfb9',
+        'status-applied': '#e89568',
+        'status-interviewing': '#729a7e',
+        'status-closed': '#a9b0aa',
+        'card-border': '#e5e8e3',
+        'card-border-hover': '#b5bdb5',
+        'company-blue': '#517cb1',
+        'company-black': '#252b28',
+        'company-cream': '#dbb98e',
+        'company-orange': '#e47c53',
+        'company-purple': '#8479a8',
+        'company-green': '#73957b',
+        'meta-text': '#a0a7a1',
+        'note-bg': '#f8f1e9',
+        'note-text': '#b17450',
+        'column-add': '#a4aba5',
+      },
+    },
+  },
+  plugins: [],
+}

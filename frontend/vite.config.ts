@@ -4,7 +4,25 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),
+  plugins: [
+    react(),
     tailwindcss()
   ],
+  server: {
+    port: 5173,
+    proxy: {
+      '/job_applications': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/auth': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/users': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
+  },
 })
