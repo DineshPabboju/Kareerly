@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useApplications } from '../context/useApplications'
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, setAuthModalOpen, login, signup, demoAuth } = useApplications()
+  const { isAuthModalOpen, setAuthModalOpen, login, signup } = useApplications()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -31,18 +31,6 @@ export const AuthModal: React.FC = () => {
     } catch (err: any) {
       const msg = err.response?.data?.detail || 'Authentication failed. Please check your credentials.'
       setErrorMsg(typeof msg === 'string' ? msg : JSON.stringify(msg))
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleDemoClick = async () => {
-    setErrorMsg('')
-    setIsSubmitting(true)
-    try {
-      await demoAuth()
-    } catch {
-      setErrorMsg('Demo login failed')
     } finally {
       setIsSubmitting(false)
     }
@@ -138,19 +126,6 @@ export const AuthModal: React.FC = () => {
             {isSubmitting ? 'Authenticating...' : mode === 'login' ? 'Sign in' : 'Create account'}
           </button>
         </form>
-
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
-
-        <button
-          type="button"
-          className="demo-login-btn"
-          onClick={handleDemoClick}
-          disabled={isSubmitting}
-        >
-          ⚡ Instant Demo Sign-in
-        </button>
       </div>
     </div>
   )

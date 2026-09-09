@@ -41,7 +41,6 @@ export interface ApplicationContextType {
   setAuthModalOpen: (open: boolean) => void
   login: (email: string, pass: string) => Promise<void>
   signup: (username: string, email: string, pass: string) => Promise<void>
-  demoAuth: () => Promise<void>
   logout: () => void
 }
 

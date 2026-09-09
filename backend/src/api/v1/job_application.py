@@ -25,7 +25,7 @@ async def get_applications(
     status_filter: Optional[str] = Query(None, alias="status"),
     search: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user_or_default)
+    current_user: models.User = Depends(oauth2.get_current_user)
 ):
     try:
         query = select(models.Job_Application).where(models.Job_Application.user_id == current_user.id)
@@ -55,7 +55,7 @@ async def get_applications(
 async def get_application(
     id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user_or_default)
+    current_user: models.User = Depends(oauth2.get_current_user)
 ):
     query = await db.execute(
         select(models.Job_Application).where(
@@ -75,7 +75,7 @@ async def get_application(
 async def create_application(
     application: JobApplicationCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user_or_default)
+    current_user: models.User = Depends(oauth2.get_current_user)
 ):
     job_application = models.Job_Application(
         **application.model_dump(),
@@ -96,7 +96,7 @@ async def update_application_status(
     id: UUID,
     status_update: JobApplicationStatusUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user_or_default)
+    current_user: models.User = Depends(oauth2.get_current_user)
 ):
     query = await db.execute(
         select(models.Job_Application).where(
@@ -125,7 +125,7 @@ async def update_application(
     id: UUID,
     updated_application: JobApplicationUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user_or_default)
+    current_user: models.User = Depends(oauth2.get_current_user)
 ):
     query = await db.execute(
         select(models.Job_Application).where(
@@ -157,7 +157,7 @@ async def update_application(
 async def delete_application(
     id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(oauth2.get_current_user_or_default)
+    current_user: models.User = Depends(oauth2.get_current_user)
 ):
     query = await db.execute(
         select(models.Job_Application).where(

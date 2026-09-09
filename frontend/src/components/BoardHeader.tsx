@@ -12,19 +12,19 @@ export const BoardHeader: React.FC = () => {
     year: 'numeric',
   }).format(new Date())
 
-  const name = user?.username || 'Jordan'
   const interviewsCount = stats.interviewsThisWeek
 
-  let momentumText = 'Keep the momentum going. Track and follow up on your applications.'
-  if (interviewsCount > 0) {
-    momentumText = `Keep the momentum going. You have ${interviewsCount} interview${interviewsCount > 1 ? 's' : ''} in progress.`
-  }
+  let momentumText = user
+    ? (interviewsCount > 0
+        ? `Keep the momentum going. You have ${interviewsCount} interview${interviewsCount > 1 ? 's' : ''} in progress.`
+        : 'Keep the momentum going. Track and follow up on your applications.')
+    : 'Sign in to access your personal applications pipeline.'
 
   return (
     <section className="board-heading" id="board">
       <div>
         <p className="eyebrow">{todayFormatted}</p>
-        <h1>Good morning, {name}.</h1>
+        <h1>Good morning{user ? `, ${user.username}` : ''}.</h1>
         <p className="heading-copy">{momentumText}</p>
       </div>
       <button

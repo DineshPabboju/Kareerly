@@ -40,8 +40,3 @@ export const getCurrentUser = async (): Promise<User> => {
   const response = await apiClient.get<User>('/auth/me')
   return response.data
 }
-
-export const demoLogin = async (): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>('/auth/demo')
-  return response.data
-}

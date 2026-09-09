@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from ..models.user import User
@@ -14,7 +13,6 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 
 SECRET_KEY = f"{settings.SECRET_KEY}"
@@ -53,35 +51,3 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     if current_user is None:
         raise credentials_exception
     return current_user
-
-
-async def get_current_user_or_default(
-    token: Optional[str] = Depends(oauth2_scheme_optional),
-    db: AsyncSession = Depends(get_db)
-) -> User:
-    """Return authenticated user if valid token present, or fallback to primary user in dev."""
-    if token:
-        try:
-            credentials_exception = HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-            token_data = verify_access_token(token, credentials_exception)
-            user_query = await db.execute(select(User).where(User.id == token_data.user_id))
-            current_user = user_query.scalar_one_or_none()
-            if current_user:
-                return current_user
-        except Exception:
-            pass
-
-    # Fallback to first user in database for frictionless local development
-    result = await db.execute(select(User))
-    first_user = result.scalars().first()
-    if first_user:
-        return first_user
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="No registered user found in database. Please register first."
-    )

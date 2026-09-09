@@ -7,7 +7,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
-  const { user, logout, setAuthModalOpen, demoAuth, refreshApplications, showToast } =
+  const { user, logout, setAuthModalOpen, refreshApplications, showToast } =
     useApplications()
   const [isDropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -98,28 +98,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onTabChange }) => {
                 Sign out
               </button>
             ) : (
-              <>
-                <button
-                  type="button"
-                  className="profile-menu-item"
-                  onClick={() => {
-                    setAuthModalOpen(true)
-                    setDropdownOpen(false)
-                  }}
-                >
-                  Sign in / Register
-                </button>
-                <button
-                  type="button"
-                  className="profile-menu-item accent"
-                  onClick={() => {
-                    demoAuth()
-                    setDropdownOpen(false)
-                  }}
-                >
-                  Quick Demo Login
-                </button>
-              </>
+              <button
+                type="button"
+                className="profile-menu-item accent"
+                onClick={() => {
+                  setAuthModalOpen(true)
+                  setDropdownOpen(false)
+                }}
+              >
+                Sign in / Register
+              </button>
             )}
           </div>
         )}

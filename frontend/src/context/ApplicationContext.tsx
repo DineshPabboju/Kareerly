@@ -15,7 +15,7 @@ import {
   updateApplicationStatus,
   deleteApplication,
 } from '../api/applications'
-import { getCurrentUser, loginUser, signupUser, demoLogin } from '../api/auth'
+import { getCurrentUser, loginUser, signupUser } from '../api/auth'
 import { normalizeStatus, getToneForCompany } from '../utils/helpers'
 import { ApplicationContext, type ModalState } from './applicationContextDef'
 
@@ -45,16 +45,32 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Check user session
   const checkUser = useCallback(async () => {
+    const token = localStorage.getItem('folio_token')
+    if (!token) {
+      setUser(null)
+      return null
+    }
     try {
       const currentUser = await getCurrentUser()
       setUser(currentUser)
+      return currentUser
     } catch {
+      localStorage.removeItem('folio_token')
       setUser(null)
+      return null
     }
   }, [])
 
-  // Fetch applications
+  // Fetch applications for current user only
   const refreshApplications = useCallback(async () => {
+    const token = localStorage.getItem('folio_token')
+    if (!token) {
+      setUser(null)
+      setApplications([])
+      setLoading(false)
+      return
+    }
+
     try {
       setError(null)
       const data = await fetchApplications()
@@ -65,9 +81,15 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       }))
       setApplications(enriched)
       setLastSyncTime(new Date())
-    } catch (err: unknown) {
-      console.error('Failed to load applications:', err)
-      setError('Unable to connect to backend server. Ensure the backend is running on port 8000.')
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem('folio_token')
+        setUser(null)
+        setApplications([])
+      } else {
+        console.error('Failed to load applications:', err)
+        setError('Unable to connect to backend server. Ensure the backend is running on port 8000.')
+      }
     } finally {
       setLoading(false)
     }
@@ -78,11 +100,27 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     let isMounted = true
 
     const initializeData = async () => {
+      const token = localStorage.getItem('folio_token')
+      if (!token) {
+        if (isMounted) {
+          setUser(null)
+          setApplications([])
+          setLoading(false)
+        }
+        return
+      }
+
       try {
         const currentUser = await getCurrentUser()
         if (isMounted) setUser(currentUser)
       } catch {
-        if (isMounted) setUser(null)
+        if (isMounted) {
+          localStorage.removeItem('folio_token')
+          setUser(null)
+          setApplications([])
+          setLoading(false)
+        }
+        return
       }
 
       try {
@@ -97,10 +135,16 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
           setLastSyncTime(new Date())
           setError(null)
         }
-      } catch (err: unknown) {
-        console.error('Initial load error:', err)
+      } catch (err: any) {
         if (isMounted) {
-          setError('Unable to connect to backend server. Ensure the backend is running on port 8000.')
+          if (err.response?.status === 401) {
+            localStorage.removeItem('folio_token')
+            setUser(null)
+            setApplications([])
+          } else {
+            console.error('Initial load error:', err)
+            setError('Unable to connect to backend server. Ensure the backend is running on port 8000.')
+          }
         }
       } finally {
         if (isMounted) setLoading(false)
@@ -116,6 +160,10 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Add application
   const addApplication = async (input: CreateApplicationInput): Promise<Application> => {
+    if (!user) {
+      setAuthModalOpen(true)
+      throw new Error('User not authenticated')
+    }
     try {
       const created = await createApplication(input)
       const formatted: Application = {
@@ -129,7 +177,7 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       setActiveModal(null)
       return formatted
     } catch (err: unknown) {
-      showToast('Failed to create application. Check backend connection.', 'error')
+      showToast('Failed to create application.', 'error')
       throw err
     }
   }
@@ -204,6 +252,11 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Modal helpers
   const openCreateModal = (defaultStatus?: ApplicationStatus) => {
+    if (!user) {
+      showToast('Please sign in to manage your applications', 'info')
+      setAuthModalOpen(true)
+      return
+    }
     setActiveModal({ type: 'create', defaultStatus: defaultStatus || 'wishlist' })
   }
 
@@ -235,29 +288,11 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     showToast(`Account created for ${username}!`, 'success')
   }
 
-  const demoAuth = async () => {
-    try {
-      const res = await demoLogin()
-      localStorage.setItem('folio_token', res.access_token)
-      if (res.user) {
-        setUser(res.user)
-      } else {
-        await checkUser()
-      }
-      await refreshApplications()
-      setAuthModalOpen(false)
-      showToast(`Signed in as demo user`, 'success')
-    } catch (err) {
-      showToast('Demo login failed.', 'error')
-      console.error(err)
-    }
-  }
-
   const logout = () => {
     localStorage.removeItem('folio_token')
     setUser(null)
+    setApplications([])
     showToast('Signed out', 'info')
-    refreshApplications()
   }
 
   // Compute live summary KPI stats
@@ -323,7 +358,6 @@ export const ApplicationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setAuthModalOpen,
     login,
     signup,
-    demoAuth,
     logout,
   }
 

@@ -14,8 +14,16 @@ const COLUMNS: BoardColumnDef[] = [
 ]
 
 export const Board: React.FC = () => {
-  const { applications, loading, error, searchQuery, selectedStatusFilter, refreshApplications } =
-    useApplications()
+  const {
+    applications,
+    loading,
+    error,
+    user,
+    setAuthModalOpen,
+    searchQuery,
+    selectedStatusFilter,
+    refreshApplications,
+  } = useApplications()
 
   // Filter applications by search text and status pill
   const filteredApplications = useMemo(() => {
@@ -42,6 +50,22 @@ export const Board: React.FC = () => {
       <BoardHeader />
       <SummaryRow />
       <FilterBar />
+
+      {!user && !loading && (
+        <div className="board-auth-banner">
+          <div>
+            <strong>You are currently not signed in</strong>
+            <p>Sign in or create an account to view and manage your applications.</p>
+          </div>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => setAuthModalOpen(true)}
+          >
+            Sign in / Register
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="board-alert">
