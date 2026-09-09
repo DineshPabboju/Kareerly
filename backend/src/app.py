@@ -25,11 +25,12 @@ app = FastAPI(
 
 @app.get("/")
 def message():
-    return {"Message": "Kareerly Job Kanban Board API is running"}
+    return {"Message": "folio Job Kanban Board API is running"}
 
 from .config import settings
 
 origins = [
+    f"{settings.FRONTEND_URL}",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
