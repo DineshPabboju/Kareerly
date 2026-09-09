@@ -20,7 +20,7 @@
   </a>
 </p>
 
----
+<!-- ---
 
 ## 🌐 Live Application
 
@@ -28,7 +28,7 @@
 - **Backend API (Render)**: [https://folio-wupk.onrender.com](https://folio-wupk.onrender.com)
 - **Interactive Swagger Docs**: [https://folio-wupk.onrender.com/docs](https://folio-wupk.onrender.com/docs)
 
----
+--- -->
 
 ## ✨ Key Features
 
