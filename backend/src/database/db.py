@@ -1,3 +1,4 @@
+import ssl
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from ..config import settings
@@ -8,7 +9,9 @@ def normalize_database_url(raw_url: str) -> tuple[str, dict]:
     """
     Normalize any PostgreSQL or SQLite connection string for SQLAlchemy async.
     Supports standard postgres://, postgresql://, and handles SSL requirements
-    for providers like Supabase, Neon, Render, Railway, and AWS RDS.
+    for providers like Render, Supabase, Neon, Railway, and AWS RDS.
+    Strips libpq-specific parameters (channel_binding, sslmode, gssencmode, etc.)
+    that are unsupported by asyncpg.
     """
     if not raw_url:
         return "sqlite+aiosqlite:///./app.db", {"connect_args": {"check_same_thread": False}}
@@ -29,21 +32,43 @@ def normalize_database_url(raw_url: str) -> tuple[str, dict]:
         connect_args["check_same_thread"] = False
         return url, connect_args
 
-    # For PostgreSQL with asyncpg, asyncpg doesn't parse 'sslmode' query params directly.
-    # Convert 'sslmode' into asyncpg compatible connect_args.
+    # For PostgreSQL with asyncpg:
+    # asyncpg does not accept libpq query parameters like:
+    # - channel_binding (commonly appended by Render and Neon)
+    # - sslmode (require/prefer/disable)
+    # - gssencmode, target_session_attrs, endpoint
     parsed = urlparse(url)
     if parsed.query:
         query_params = parse_qs(parsed.query)
-        if "sslmode" in query_params:
-            sslmode = query_params.pop("sslmode")[0]
-            if sslmode in ("require", "verify-ca", "verify-full"):
-                connect_args["ssl"] = True
-        if "ssl" in query_params:
-            ssl_val = query_params.pop("ssl")[0]
-            if ssl_val.lower() in ("true", "1", "require"):
-                connect_args["ssl"] = True
-        # Reconstruct URL without unsupported asyncpg query params
-        new_query = urlencode(query_params, doseq=True)
+
+        # Extract SSL configuration
+        sslmode = query_params.pop("sslmode", [None])[0]
+        ssl_val = query_params.pop("ssl", [None])[0]
+
+        if sslmode in ("require", "verify-ca", "prefer") or (ssl_val and ssl_val.lower() in ("true", "1", "require")):
+            # Create a permissive SSL context suitable for cloud hosts (Render, Neon, etc.)
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            connect_args["ssl"] = ctx
+        elif sslmode == "verify-full":
+            connect_args["ssl"] = ssl.create_default_context()
+        elif sslmode == "disable" or (ssl_val and ssl_val.lower() in ("false", "0", "disable")):
+            connect_args["ssl"] = False
+
+        # Only allow query params that asyncpg.connect() actually supports
+        ALLOWED_ASYNCPG_PARAMS = {
+            "timeout",
+            "command_timeout",
+            "statement_cache_size",
+            "max_cached_statement_lifetime",
+            "max_cacheable_statement_size",
+            "server_settings",
+        }
+
+        # Filter out all libpq-specific parameters (channel_binding, gssencmode, etc.)
+        filtered_query = {k: v for k, v in query_params.items() if k in ALLOWED_ASYNCPG_PARAMS}
+        new_query = urlencode(filtered_query, doseq=True)
         url = urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_query, parsed.fragment))
 
     return url, connect_args

@@ -1,2 +1,12 @@
 IMPLEMENTATION.md
 walkthrough.md
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+*.sqlite
+*.db
