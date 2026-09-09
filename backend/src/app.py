@@ -30,22 +30,28 @@ def message():
 from .config import settings
 
 origins = [
-    f"{settings.FRONTEND_URL}",
+    "https://folio-job-track.vercel.app",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
     "http://localhost:3000",
 ]
-if settings.FRONTEND_URL and settings.FRONTEND_URL not in origins:
-    origins.append(settings.FRONTEND_URL)
+
+if settings.FRONTEND_URL:
+    for frontend_url in settings.FRONTEND_URL.split(","):
+        cleaned = frontend_url.strip().rstrip("/")
+        if cleaned and cleaned not in origins:
+            origins.append(cleaned)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"^https:\/\/.*\.vercel\.app$|^https:\/\/.*\.onrender\.com$|^http:\/\/localhost(:\d+)?$|^http:\/\/127\.0\.0\.1(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.include_router(job_application_router)
